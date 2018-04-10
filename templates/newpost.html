@@ -8,20 +8,34 @@
                 <td>
         <label>
             Title:
-            <input type="text" name='title' />
         </label>
                 </td>
-            </tr>     
-        <td class="error"> {{title_error}}
-        </td>
+            </tr>
+            <tr>
+                <td>
+            <input type="text" name='title' />                 
+                </td>        
+                <td class="error"> {{title_error}}
+                </td>
+            </tr>
+            <tr>
+                 <td>   
         <label>
-            Entry:</label>
-            <textarea rows="3" cols="25" name='body' />
-            </textarea>
-        <td class="error"> {{body_error}}
-        </td>
-        <input type="submit" value='Post it!' />
+            Entry:
+        </label>
+                 </td>
+            </tr>
+            <tr>
+                <td width='50'>
+                <textarea rows="3" cols="25" name='body' required/>
+                </textarea>
+                </td>
+                 <td class="error"> {{body_error}}
+                </td>
+            </tr>
         </table>
+        <input type="submit" value='Post it!' />
+        
     </form>
 
 {% endblock %}

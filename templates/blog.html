@@ -6,7 +6,7 @@
     <p>No posts yet</p>
     {% else %}
         {% for ablog in old_posts %} 
-        <h4>{{ablog.title}}</h4>
+        <h2>{{ablog.title}}</h2>
         <p>{{ablog.body}}</p>
             {% endfor %}
     {% endif %}

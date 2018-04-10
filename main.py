@@ -48,7 +48,7 @@ def validate_data():
     body = request.form["body"] 
 
     title_error=""
-    body_error =""
+    body_error=""
 
     if not title:   
         title_error = "Please remember to enter a title." 
