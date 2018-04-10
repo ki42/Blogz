@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>My Blog</h1>
+    {% if not old_posts %}
+    <p>No posts yet</p>
+    {% else %}
+        {% for ablog in old_posts %} 
+        <h4>{{ablog.title}}</h4>
+        <p>{{ablog.body}}</p>
+            {% endfor %}
+    {% endif %}
+{% endblock %}
