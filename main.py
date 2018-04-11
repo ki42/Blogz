@@ -1,7 +1,8 @@
-from flask import Flask, request, redirect, render_template
-from flask_sqlalchemy import SQLAlchemy
 import cgi
 from datetime import datetime
+
+from flask import Flask, redirect, render_template, request
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.config['DEBUG'] = True      # displays runtime errors in the browser, too
@@ -30,13 +31,26 @@ class Blog(db.Model):
 def get_old_blogs():
     return Blog.query.all()
 
+@app.route('/singlepost.html')
+def singlepost():
+    id = int(request.args.get('id'))
+    blog_id = Blog.query.filter_by(blog.id).first    #2 arguments when expecting 1
+    return render_template("singlepost.html", blog_id = blog_id)
+
 @app.route('/blog.html', methods=['POST', 'GET'])
 def index():
     if request.method == 'POST':
         title = request.form['title']
         body = request.form['body']
-        return render_template('blog.html', head_title="My blog", old_posts = get_old_blogs())
-    return render_template('blog.html', head_title="My blog", old_posts = get_old_blogs())
+        return render_template('blog.html', 
+            head_title="My blog", 
+            old_posts = get_old_blogs())
+
+    if request.method =="GET":
+
+        return render_template('blog.html', 
+            head_title="My blog", 
+            old_posts = get_old_blogs())
 
 @app.route('/newpost', methods=['POST', 'GET'])
 def newpost():
@@ -52,12 +66,14 @@ def validate_data():
 
     if not title:   
         title_error = "Please remember to enter a title." 
-    if not body:   
+    if body == "NONE":  #this line isn't working, it did, then I changed it to a textarea. 
         body_error = "Please enter something in the body."      
     if not title_error and not body_error :  #this passes if the strings stay empty
         blog_post = Blog(title, body)
         db.session.add(blog_post)
         db.session.commit()  
+        after_submit = Blog.query.get(blog_post.id).first  #this line still broken
+# instead of rendering blog, render singlepost with the correct id:
         return render_template("blog.html", old_posts = get_old_blogs())
    
     else:  #it had an error
