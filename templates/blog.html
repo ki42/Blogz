@@ -6,7 +6,7 @@
     <p>No posts yet</p>
     {% else %}
         {% for ablog in old_posts %} 
-        <h2><a href="./singlepost.html?id={{ablog.id}}">{{ablog.title}}</a></h2>
+        <h2><a href="/blog?id={{ablog.id}}">{{ablog.title}}</a></h2>
         <p>{{ablog.body}}</p>
         <hr></hr>
             {% endfor %}

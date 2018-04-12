@@ -31,24 +31,28 @@ class Blog(db.Model):
 def get_old_blogs():
     return Blog.query.all()
 
-@app.route('/singlepost.html')
-def singlepost():
-    id = int(request.args.get('id'))
-    blog_id = Blog.query.filter_by(blog.id).first    #2 arguments when expecting 1
-    return render_template("singlepost.html", blog_id = blog_id)
-
 @app.route('/blog.html', methods=['POST', 'GET'])
 def index():
+     
+    
     if request.method == 'POST':
         title = request.form['title']
         body = request.form['body']
-        return render_template('blog.html', 
-            head_title="My blog", 
-            old_posts = get_old_blogs())
+         #2 arguments when expecting 1
+        return render_template("singlepost.html",
+        head_title="My blog", 
+        blog_id = blog_id)
 
     if request.method =="GET":
-
-        return render_template('blog.html', 
+        if request.args.get('id'):
+            id = int(request.args.get('id'))
+            blog = Blog.query.filter_by(date).first  
+            blog_id = blog.id
+            return render_template("singlepost.html",
+            head_title="My blog", 
+            blog_id = blog_id)
+        else:    
+            return render_template('blog.html', 
             head_title="My blog", 
             old_posts = get_old_blogs())
 
@@ -72,9 +76,13 @@ def validate_data():
         blog_post = Blog(title, body)
         db.session.add(blog_post)
         db.session.commit()  
-        after_submit = Blog.query.get(blog_post.id).first  #this line still broken
+        after_submit = Blog.query.filter_by(date).first 
+        submitted_id = after_submit.id
+         #this line still broken
 # instead of rendering blog, render singlepost with the correct id:
-        return render_template("blog.html", old_posts = get_old_blogs())
+        return render_template("singlepost.html",
+            head_title="My blog", 
+            blog_id = submitted_id)
    
     else:  #it had an error
         return render_template("newpost.html",
