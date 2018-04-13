@@ -2,7 +2,7 @@
 
 {% block content %}
     <h1>New Blog Post</h1>
-    <form method='post' action= "/validate">
+    <form method='POST' action= "/blog">
         <table>
             <tr>
                 <td>
@@ -22,19 +22,24 @@
                  <td>   
         <label>
             Entry:
-                 </td>
+        </label>
+                </td>
             </tr>
             <tr>
-                <td width='50'>
-                <textarea name='body' value="NONE" required>
+                <td>
+                <textarea name='body' value='body' defaultValue='0'>
                 </textarea>
-            </label>
                 </td>
                  <td class="error"> {{body_error}}
                 </td>
             </tr>
+            <tr>
+                <td>
+                <input type="submit" value='Post it!' />
+                </td>
+            </tr>
         </table>
-        <input type="submit" value='Post it!' />
+        
         
     </form>
 

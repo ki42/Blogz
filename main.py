@@ -1,7 +1,7 @@
 import cgi
 from datetime import datetime
 
-from flask import Flask, redirect, render_template, request
+from flask import Flask, redirect, render_template, request, session
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -31,66 +31,60 @@ class Blog(db.Model):
 def get_old_blogs():
     return Blog.query.all()
 
-@app.route('/blog.html', methods=['POST', 'GET'])
-def index():
-     
-    
-    if request.method == 'POST':
+@app.route('/blog', methods=['POST', 'GET'])
+def blog():
+    if request.method == 'POST': #you have submitted a form validate it. If good save and render single post
         title = request.form['title']
         body = request.form['body']
-         #2 arguments when expecting 1
-        return render_template("singlepost.html",
-        head_title="My blog", 
-        blog_id = blog_id)
+        title_error=""
+        body_error=""
+        if body == "                ":  #this line isn't working, it did, then I changed it to a textarea. 
+            body_error = "Please enter something in the body."   
+        if not title:   
+            title_error = "Please remember to enter a title." 
+           
+        if not title_error and not body_error :  #this passes if the strings stay empty
+            blog = Blog(title, body)
+            db.session.add(blog)
+            db.session.commit()  
+            after_submit = "/blog?id=" + str(blog.id)    #stored here, not using it
+            return redirect(after_submit)
 
+
+
+            render_template("singlepost.html",
+                head_title="My blog", 
+                blog = blog)
+
+
+        else:  #it had an error
+            return render_template("newpost.html",
+                title=title,
+                body=body,
+                title_error = title_error,
+                body_error = body_error
+                )     
+    
     if request.method =="GET":
-        if request.args.get('id'):
-            id = int(request.args.get('id'))
-            blog = Blog.query.filter_by(date).first  
-            blog_id = blog.id
+        if request.args.get('id'): #how to show single posts from get request
+            blog_id = request.args.get('id')
+            blog = Blog.query.get(blog_id)
             return render_template("singlepost.html",
             head_title="My blog", 
-            blog_id = blog_id)
-        else:    
+            blog = blog)
+
+        else:    #I showed up for the first time- working
             return render_template('blog.html', 
             head_title="My blog", 
             old_posts = get_old_blogs())
 
 @app.route('/newpost', methods=['POST', 'GET'])
 def newpost():
+
     return render_template('newpost.html', head_title="New Post")
+    
 
-@app.route('/validate', methods=['POST'])
-def validate_data():
-    title = request.form["title"]
-    body = request.form["body"] 
-
-    title_error=""
-    body_error=""
-
-    if not title:   
-        title_error = "Please remember to enter a title." 
-    if body == "NONE":  #this line isn't working, it did, then I changed it to a textarea. 
-        body_error = "Please enter something in the body."      
-    if not title_error and not body_error :  #this passes if the strings stay empty
-        blog_post = Blog(title, body)
-        db.session.add(blog_post)
-        db.session.commit()  
-        after_submit = Blog.query.filter_by(date).first 
-        submitted_id = after_submit.id
-         #this line still broken
-# instead of rendering blog, render singlepost with the correct id:
-        return render_template("singlepost.html",
-            head_title="My blog", 
-            blog_id = submitted_id)
-   
-    else:  #it had an error
-        return render_template("newpost.html",
-            title=title,
-            body=body,
-            title_error = title_error,
-            body_error = body_error
-            )  
 
 if __name__ == "__main__":
     app.run()
+
