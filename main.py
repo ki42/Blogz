@@ -50,13 +50,6 @@ def blog():
             after_submit = "/blog?id=" + str(blog.id)    #stored here, not using it
             return redirect(after_submit)
 
-
-
-            render_template("singlepost.html",
-                head_title="My blog", 
-                blog = blog)
-
-
         else:  #it had an error
             return render_template("newpost.html",
                 title=title,
@@ -80,7 +73,6 @@ def blog():
 
 @app.route('/newpost', methods=['POST', 'GET'])
 def newpost():
-
     return render_template('newpost.html', head_title="New Post")
     
 
