@@ -15,7 +15,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50))
     password = db.Column(db.String(50))
-    blogs = db.relationship('Blog', backref='user')
+    blogs = db.relationship('Blog', backref='user')  #you need to read up on how to do this right, something is broken here
 
     def __init__(self, username, password):
          self.username = username
@@ -49,94 +49,104 @@ app.secret_key = "dsjfhirwbrguakdbufbuwe"
 def get_old_blogs():
     return Blog.query.all()
 
-@app.before_request()
-    def require_login():
+@app.before_request
+def require_login():  
         #allowed_routes 'login', 'blog', 'index', 'signup' #these are the function names NOT the handler names
         #request.endpoint   is the name of the function not the url path
         #if the user is trying to go anywhere else, and not logged in    ....if user not in session:
-        allowed_routes = ['login', 'blog', 'index', 'signup']
+    allowed_routes = ['login', 'blog', 'index', 'signup']
     if request.endpoint not in allowed_routes and 'username' not in session:
         return redirect('/login')
            
 @app.route('/')
 def index(): 
-    return render_template("index.html", get_old_blogs())
+    return render_template("index.html", old_posts = get_old_blogs())
 
-@app.route('/login', methods=['POST'])
+@app.route('/login', methods=['POST', 'GET'])
 def login():
-    username = request.form["username"]
-    password = request.form["password"]
+    if request.method == 'GET':
+        return render_template("login.html")
 
-#I need to query the database  using the user name and password they submitted.   
-    user-names = User.query.get(username) #this line needs to get the entire database of user-names
+    else:
+        username = request.form["username"]
+        password = request.form["password"]
 
-    if username not in user-names.username:
-        #return the flash message "This user name does not exist"
-        flash("This user name does not exist")
-        if password not in user-names.password:
-         #return flash message "Password is incorrect"
-        flash("Password is incorrect")
-    if username == user-names.username and password == user-names.password:
-       #TODO store their user name in the session 
-        session['username'] = username
-        return redirect("/newpost")
+    #I need to query the database  using the user name and password they submitted.   
+        user_names = get_old_blogs() #this line needs to get the entire database of user-names
+
+        if username not in user_names.username:
+            #return the flash message "This user name does not exist"
+            flash("This user name does not exist")
+            if password not in user_names.password:
+            #return flash message "Password is incorrect"
+                flash("Password is incorrect")
+        if username == user_names.username and password == user_names.password:
+        #TODO store their user name in the session 
+            session['username'] = username
+            return redirect("/newpost")
 
 
 # signup handler
-@app.route('/signup', methods=['POST'])
+@app.route('/signup', methods=['POST', 'GET'])
 def signup():
-    username = request.form["username"]
-    password = request.form["password"]
-    verifypass = request.form["verifypass"] 
-
-    username_error=""
-    password_error =""
-    verifypass_error =""
-
-    #I may change this to flash messages
-    #if they leave it blank the message is supposed to read "One or more fields are invalid"
-    #if password and verifypass are different "Passwords do not match"
-    #if len(username) <3:   Username invalid, too short
-    #if len(password) <3:   Password
-
-
-    if not username:   
-        username_error = "Please enter a username." 
-    elif len(username) < 3:
-        username_error = "Must be more than 3 characters."       
+    if request.method == 'GET':
+        return render_template("signup.html")
     else:
-        username = username
+        username = request.form["username"]
+        password = request.form["password"]
+        verifypass = request.form["verifypass"] 
 
-    if not password:   
-        password_error = "Please enter a password."  
-        password = ""
-    elif len(password) < 3:
-        password_error = "Must be more than 3 characters."       
-        password = ""
-    else:
-        password = password
-    
-    if not verifypass:   
-        verifypass_error = "Please enter a verify password." 
-        verifypass = ""   
-    elif password != verifypass:
-        verifypass_error = "Password and verify password must be the same."       
-        verifypass = ""
-    else:
-        verifypass = verifypass
+        username_error=""
+        password_error =""
+        verifypass_error =""
+
+        #I may change this to flash messages
+        #if they leave it blank the message is supposed to read "One or more fields are invalid"
+        #if password and verifypass are different "Passwords do not match"
+        #if len(username) <3:   Username invalid, too short
+        #if len(password) <3:   Password
+
+
+        if not username:   
+            username_error = "Please enter a username." 
+        elif len(username) < 3:
+            username_error = "Must be more than 3 characters."       
+        else:
+            username = username
+
+        if not password:   
+            password_error = "Please enter a password."  
+            password = ""
+        elif len(password) < 3:
+            password_error = "Must be more than 3 characters."       
+            password = ""
+        else:
+            password = password
         
-    if not username_error and not password_error and not verifypass_error:  #this passes if the strings stay empty
-       #TODO store their user name in the session 
-        session['username'] = username
-        return redirect("/newpost")
-    
-    else:  #it had an error
-        return render_template("signup.html", 
-            username=username,
-            username_error=username_error,
-            password_error=password_error,
-            verifypass_error=verifypass_error,
-            )  
+        if not verifypass:   
+            verifypass_error = "Please enter a verify password." 
+            verifypass = ""   
+        elif password != verifypass:
+            verifypass_error = "Password and verify password must be the same."       
+            verifypass = ""
+        else:
+            verifypass = verifypass
+            
+        if not username_error and not password_error and not verifypass_error:  #this passes if the strings stay empty
+        #TODO store their user name in the session 
+            session['username'] = username   #this line isn't working or it's handler near the top isn't working
+            user = User(username, password)
+            db.session.add(user)
+            db.session.commit()  
+            return redirect("/newpost")
+        
+        else:  #it had an error
+            return render_template("signup.html", 
+                username=username,
+                username_error=username_error,
+                password_error=password_error,
+                verifypass_error=verifypass_error,
+                )  
 #This is the end of of the User-signin
 
 @app.route('/logout')
