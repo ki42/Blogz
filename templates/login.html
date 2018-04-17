@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Signup</h1>
+    <form action = "/validate-data"  method='POST' >
+        <table>
+            <tr>
+                <td><label>Username</label>
+                </td>
+                 <td>
+                 <input name="username" type="text" value='{{username}}' />
+                </td>
+                 <td class="error"> {{username_error}}
+                </td>
+            </tr>
+            <tr>
+                <td><label>Password</label>
+                </td>
+                <td>
+                <input name="password" type="password" value='{{password}}' />
+                </td>
+                <td class="error">{{password_error}}
+                </td>    
+            </tr> 
+            <tr>
+                <td>
+                    <input type="submit" value="Submit" />
+                </td>    
+            </tr>
+            <tr>
+                <td>
+                    Don't have a an account? <a href="/signup">Create one!</a>
+                </td>
+            </tr>
+            </table>            
+                </form>
+
+ {% endblock %}

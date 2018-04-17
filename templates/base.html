@@ -5,7 +5,28 @@
         <style> .error { color:red;  font-style: italic;}</style> 
     </head>
 <body>
-<div><a href="/newpost">New Post</a><span>           </span></span><a href="/blog">Blog Mainpage</a></div>
+<table>
+   <tr>
+        <td>
+            <a href="/">home</a>   
+        </td>
+        <td>
+            <a href="/newpost">new post</a>   
+        </td>
+        <td>
+            <a href="/blog">blog</a>   
+        </td>
+        <td>
+            <div width="120"></div>
+        </td>
+        <td>
+            <a href="/login">login</a>   
+        </td>
+        <td>
+            <a href="/logout">Logout</a>   
+        </td>
+   </tr> 
+</table>
     {% block content %}
     {% endblock %}
 

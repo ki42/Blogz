@@ -2,6 +2,12 @@
 
 {% block content %}
     <h1>My Blog</h1>
-        <h2>{{blog.title}}</h2>
-        <p>{{blog.body}}</p>
+{% for ablog in blog}
+        <h2>{{ablog.title}}</h2>{{ablog.date}}
+        <p>{{ablog.body}}</p>
+        <hr></hr>
+        <br>
+        <br>
+        <em>written by <a href="/blog?id={{ablog.id}}">{{ablog.username}}</a></em>
+{% endfor %}
 {% endblock %}
