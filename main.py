@@ -1,7 +1,7 @@
 import cgi
 from datetime import datetime
 
-from flask import Flask, redirect, render_template, request, session
+from flask import Flask, redirect, render_template, request, session, flash
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -39,8 +39,12 @@ class Blog(db.Model):
         return '<Blog %r>' % self.title
 
 #handle another parameter in new_post?
-#TODO create a session
-#TODO set a secret key here! 
+
+
+
+#TODO create a session -according to the tutorial, I don't have to make a global one, double check.
+# set a secret key here! 
+app.secret_key = "dsjfhirwbrguakdbufbuwe"
 
 def get_old_blogs():
     return Blog.query.all()
@@ -48,8 +52,10 @@ def get_old_blogs():
 @app.before_request()
     def require_login():
         #allowed_routes 'login', 'blog', 'index', 'signup' #these are the function names NOT the handler names
-        #request.endpoint()   is the name of the function not the url path
+        #request.endpoint   is the name of the function not the url path
         #if the user is trying to go anywhere else, and not logged in    ....if user not in session:
+        allowed_routes = ['login', 'blog', 'index', 'signup']
+    if request.endpoint not in allowed_routes and 'username' not in session:
         return redirect('/login')
            
 @app.route('/')
@@ -60,17 +66,19 @@ def index():
 def login():
     username = request.form["username"]
     password = request.form["password"]
-#right here I need to query the database  using the user name and password they submitted.    
-    user-names = User.request #this line needs to get the entire database of user-names
 
-    if username not in #databaseObject.username:
+#I need to query the database  using the user name and password they submitted.   
+    user-names = User.query.get(username) #this line needs to get the entire database of user-names
+
+    if username not in user-names.username:
         #return the flash message "This user name does not exist"
-    if password not in #databaseObject.password:
-        #return flash message "Password is incorrect"
-
-        #how to make sure they were in the same entry in the database? A loop that checks one entry at a time?
-    if #it actually is a match in the database:
+        flash("This user name does not exist")
+        if password not in user-names.password:
+         #return flash message "Password is incorrect"
+        flash("Password is incorrect")
+    if username == user-names.username and password == user-names.password:
        #TODO store their user name in the session 
+        session['username'] = username
         return redirect("/newpost")
 
 
@@ -119,6 +127,7 @@ def signup():
         
     if not username_error and not password_error and not verifypass_error:  #this passes if the strings stay empty
        #TODO store their user name in the session 
+        session['username'] = username
         return redirect("/newpost")
     
     else:  #it had an error
@@ -133,6 +142,7 @@ def signup():
 @app.route('/logout')
 def logout():
     #delete username from session
+    del session['username']
     return redirect('/blog') #Just for me, flash message that "You have been logged out" ?
 
 @app.route('/blog', methods=['POST', 'GET'])
