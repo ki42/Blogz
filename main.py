@@ -134,7 +134,7 @@ def signup():
             
         if not username_error and not password_error and not verifypass_error:  #this passes if the strings stay empty
         #TODO store their user name in the session 
-            session['username'] = username   #this line isn't working or it's handler near the top isn't working
+            session['username'] = username   
             user = User(username, password)
             db.session.add(user)
             db.session.commit()  
@@ -188,7 +188,7 @@ def blog():
             blog = Blog.query.get(blog_id)
             return render_template("singlepost.html",
             head_title="My blog", 
-            blog = blog)
+            blog = blog)        #TypeError: 'Blog' object is not iterable
 
         if request.args.get('user'): #how to show single posts from a single author get request
             user_id = request.args.get('user')
