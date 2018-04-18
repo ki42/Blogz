@@ -5,8 +5,8 @@
     {% if not old_posts %}
     <p>No posts yet</p>
     {% else %}
-        {% for ablog in old_posts %} 
-        <a href="/blog?id={{ablog.id}}">{{ablog.username}}</a>
+        {% for users in user %} 
+        <a href="/blog?id={{user.id}}">{{user.id}}</a>
         {% endfor %}
     {% endif %}
 {% endblock %}

@@ -2,12 +2,16 @@
 
 {% block content %}
     <h1>My Blog</h1>
+    <table>
+        
 {% for ablog in blog %}
-        <h2>{{ablog.title}}</h2>{{ablog.date}}
-        <p>{{ablog.body}}</p>
-        <hr></hr>
+        <tr>
+            <td><h2>{{ablog.title}}</h2></td><td>{{ablog.date}}</td></tr>
+        <tr><td>{{ablog.body}}</tr></td>
+        <tr><td><br>
         <br>
-        <br>
-        <em>written by <a href="/blog?id={{ablog.id}}">{{ablog.username}}</a></em>
+        <em>written by <a href="/blog?id={{ablog.owner_id}}">{{ablog.owner_id}}</a></em></td></tr>
+        <tr colspan='3'><td><hr></hr></td></tr>
 {% endfor %}
+    </table>
 {% endblock %}
