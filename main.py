@@ -15,11 +15,12 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50))
     password = db.Column(db.String(50))
-    blogs = db.relationship('Blog', backref='user')  #you need to read up on how to do this right, something is broken here
+    blogs = db.relationship('Blog', backref='user')   
 
     def __init__(self, username, password):
-         self.username = username
-         self.password = password
+        self.username = username
+        self.password = password
+
 
 class Blog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -28,21 +29,19 @@ class Blog(db.Model):
     date = db.Column(db.DateTime)
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    def __init__(self, title, body, date=None):
+    def __init__(self, title, body, owner_id, date=None):
         self.title = title
         self.body = body
         if date is None:
             date = datetime.utcnow()
         self.date = date
+        self.owner_id = owner_id
     
     def __repr__(self):
         return '<Blog %r>' % self.title
 
 #handle another parameter in new_post?
 
-
-
-#TODO create a session -according to the tutorial, I don't have to make a global one, double check.
 # set a secret key here! 
 app.secret_key = "dsjfhirwbrguakdbufbuwe"
 
@@ -60,33 +59,34 @@ def require_login():
            
 @app.route('/')
 def index():         #need to fix database syntax to show authors on index - posibly working now, test in a minute
-    return render_template("index.html", old_posts = get_old_blogs(), user = get_users())
+    user_table = User.query.all()
+    return render_template("index.html", user_table = user_table)
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
     if request.method == 'GET':
         return render_template("login.html")
 
-    else:
+    else:  #it was a post request, I need to verify the correct data
         username = request.form["username"]
         password = request.form["password"]
 
     #I need to query the database  using the user name and password they submitted.   
-        user_names = get_users() #this line needs to get the entire database of user-names
-        for user in user_names:
-#I think I need a try/except block here. 
+    #this line needs to get the entire database of user-names
+        user_name = User.query.all()
 
-
-            if username not in user_names:
+        for user in user_name:  
+            if username == user.username:
+                stored_id = user.id
+                if password == user.password:
+                    session['username'] = username
+                    return redirect("/newpost")
+                else:
+                    #return flash message "Password is incorrect"
+                   return redirect('/login', flash("Password is incorrect"))
+            else:
                 #return the flash message "This user name does not exist"
-                flash("This user name does not exist")
-                if password not in user_names.password:
-                #return flash message "Password is incorrect"
-                    flash("Password is incorrect")
-            if username == user_names.username and password == user_names.password:
-            #TODO store their user name in the session 
-                session['username'] = username
-                return redirect("/newpost")
+                return redirect('/login', flash("This user name does not exist"))
 
 
 # signup handler
@@ -163,17 +163,17 @@ def blog():
     if request.method == 'POST': #you have submitted a form validate it. If good save and render single post
         title = request.form['title']
         body = request.form['body']
-        username = request.form['username']
-        single_user = User.query.get(username).first
+        owner = User.query.filter_by(username=session['username']).first()
+       
         title_error=""
         body_error=""
-        if body == "                ":  #this line isn't working, it did, then I changed it to a textarea. 
+        if not body:  #this line isn't working, it did, then I changed it to a textarea. 
             body_error = "Please enter something in the body."   
         if not title:   
             title_error = "Please remember to enter a title." 
            
         if not title_error and not body_error :  #this passes if the strings stay empty
-            blog = Blog(title, body, single_user.id)
+            blog = Blog(title, body, owner.id)
             db.session.add(blog)
             db.session.commit()  
             after_submit = "/blog?id=" + str(blog.id)    
@@ -190,10 +190,11 @@ def blog():
     if request.method =="GET":
         if request.args.get('id'): #how to show single posts from get request
             blog_id = request.args.get('id')
-            blog = get_old_blogs()
+            blog = Blog.query.filter_by(owner_id = blog_id)
+            owner = User.query.get(blog_id)
             return render_template("singlepost.html",
             head_title="My blog", 
-            blog = blog)        #TypeError: 'Blog' object is not iterable    .sort_by("date desc")
+            blog = blog, owner = owner)           
 
         if request.args.get('user'): #how to show single posts from a single author get request
             user_id = request.args.get('user')
@@ -213,8 +214,8 @@ def blog():
 @app.route('/newpost', methods=['POST', 'GET'])
 def newpost():
 # so, I need some way to add/commit the owner_id with these posts. 
-    username = session['username']    #can I get the current username out? 
-    return render_template('newpost.html', head_title="New Post", username = username)
+    user_name = session['username']    #can I get the current username out? 
+    return render_template('newpost.html', head_title="New Post", username = user_name)
     
 
 
