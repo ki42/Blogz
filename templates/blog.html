@@ -2,13 +2,24 @@
 
 {% block content %}
     <h1>My Blog</h1>
-    {% if not old_posts %}
+    {% if not userList %}
     <p>No posts yet</p>
     {% else %}
-        {% for ablog in old_posts %} 
-        <h2><a href="/blog?id={{ablog.id}}">{{ablog.title}}</a></h2>
-        <p>{{ablog.body}}</p>
-        <hr></hr>
+    <table>
+        {% for ablog in userList %} 
+        <tr><td><h2><a href="/blog?id={{ablog.id}}">{{ablog.title}}</a></h2></td></tr>
+        <tr><td><p>{{ablog.body}}</p></td></tr>
+        <tr>
+        <td><br><br>
+                <em>written by <a href="/blog?user={{ablog.owner_id}}">{{ablog.username}}</a></em>
+            </td>
+            <td><br><br>
+                {{ablog.date}}
+            </td>
+        </tr>
+        <tr><td>
+        <hr></hr></td></tr>
             {% endfor %}
+        </table>
     {% endif %}
 {% endblock %}

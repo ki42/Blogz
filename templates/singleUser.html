@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>My Blog</h1>
+    <table>   
+{% for ablog in blog %}
+        <tr>
+            <td>
+                <h2><a href="/blog?id={{ablog.id}}">{{ablog.title}}</h2></a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                {{ablog.body}}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <br>
+                <br>
+                <em>written by <a href="/blog?user={{ablog.owner_id}}">{{owner.username}}</a></em>
+            </td>
+            <td>
+                <br>
+                <br>
+                {{ablog.date}}
+            </td>
+        </tr>
+        <tr><td><hr></hr></td></tr>
+{% endfor %}
+    </table>
+{% endblock %}

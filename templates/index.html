@@ -3,6 +3,6 @@
 {% block content %}
     <h1>All Authors</h1>
         {% for user in user_table %} 
-        <p><a href="/blog?id={{user.id}}">{{user.username}}</a></p>
+        <p><a href="/blog?user={{user.id}}">{{user.username}}</a></p>
         {% endfor %}
 {% endblock %}

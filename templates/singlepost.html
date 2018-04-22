@@ -2,16 +2,24 @@
 
 {% block content %}
     <h1>My Blog</h1>
-    <table>
-        
-{% for ablog in blog %}
+    <table>   
         <tr>
-            <td><h2>{{ablog.title}}</h2></td><td>{{ablog.date}}</td></tr>
-        <tr><td>{{ablog.body}}</tr></td>
-        <tr><td><br>
-        <br>
-        <em>written by <a href="/blog?id={{ablog.owner_id}}">{{owner.username}}</a></em></td></tr>
-        <tr colspan='3'><td><hr></hr></td></tr>
-{% endfor %}
+            <td><h2><a href="/blog?id={{blog.id}}">{{blog.title}}</a></h2></td>
+        </tr>
+        <tr>
+            <td>{{blog.body}}</td>
+        </tr>
+        <tr>
+            <td>
+                    <br>
+                    <br>
+                <em>written by <a href="/blog?user={{blog.owner_id}}">{{owner.username}}</a></em></td>
+            <td>
+                <br>
+                <br>{{blog.date}}</td>
+        </tr>
+    </table>
+    <table>
+        <hr colspan='8'></hr>
     </table>
 {% endblock %}

@@ -147,7 +147,7 @@ def signup():
                 )  
 #This is the end of of the User-signin
 
-@app.route('/logout')
+@app.route('/logout', methods=['POST'])
 def logout():
     #delete username from session
     del session['username']
@@ -185,14 +185,28 @@ def blog():
     
     if request.method =="GET":
         if request.args.get('id'): #how to show single posts from get request
-            blog_id = request.args.get('id')
-            blog = Blog.query.filter_by(owner_id = blog_id)
-            owner = User.query.get(blog_id)
+            blog_id = request.args.get('id') #what number was it coming in?
+
+            blog = Blog.query.filter_by(id = blog_id).first()
+            owner = User.query.get(blog.owner_id)
             return render_template("singlepost.html",
             head_title="My blog", 
-            blog = blog, owner = owner)           
+            blog = blog, owner = owner)    
 
-        if request.args.get('user'): #how to show single posts from a single author get request
+        if request.args.get('user'): #how to show all posts by author... working
+            owner_id = request.args.get('user')
+            blog = Blog.query.filter_by(owner_id = owner_id).all()
+            owner = User.query.get(owner_id)
+            return render_template("singleUser.html",
+            head_title="My blog", 
+            blog = blog, owner = owner)  
+
+
+
+
+
+
+        if request.args.get('outofbounds'): #how to show single posts from a single author get request
             user_id = request.args.get('user')
             blog = Blog.query.get().all.sort_by("date desc")
             
@@ -203,17 +217,27 @@ def blog():
             blog = blog)
 
         else:    #I showed up for the first time- working
+            userList = User.query.join(Blog, 
+                User.id==Blog.owner_id).add_columns(User.id, 
+                User.username, 
+                User.password, 
+                Blog.id, 
+                Blog.title,
+                Blog.body,
+                Blog.date,
+                Blog.owner_id)
+                #.paginate(page, 1, False)
             return render_template('blog.html', 
             head_title="My blog", 
-            old_posts = get_old_blogs())
+            userList = userList)
 
-@app.route('/newpost', methods=['POST', 'GET'])
+@app.route('/newpost', methods=['POST', 'GET']) #login redirects as GET #link redirects as GET
 def newpost():
 # so, I need some way to add/commit the owner_id with these posts. 
     user_name = session['username']    #can I get the current username out? 
     return render_template('newpost.html', head_title="New Post", username = user_name)
     
-
+  
 
 if __name__ == "__main__":
     app.run()
