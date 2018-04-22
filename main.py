@@ -70,23 +70,18 @@ def login():
     else:  #it was a post request, I need to verify the correct data
         username = request.form["username"]
         password = request.form["password"]
-
-    #I need to query the database  using the user name and password they submitted.   
-    #this line needs to get the entire database of user-names
-        user_name = User.query.all()
-
-        for user in user_name:  
-            if username == user.username:
-                stored_id = user.id
-                if password == user.password:
-                    session['username'] = username
-                    return redirect("/newpost")
-                else:
-                    #return flash message "Password is incorrect"
-                   return redirect('/login', flash("Password is incorrect"))
+        users = User.query.filter_by(username=username)
+        if users.count() == 1:
+            user = users.first()
+            if password == user.password:
+                session['username'] = user.username
+                return redirect("/newpost")
             else:
-                #return the flash message "This user name does not exist"
-                return redirect('/login', flash("This user name does not exist"))
+                flash("Password is incorrect")    #return flash message "Password is incorrect"
+                return redirect('/login')
+        else:
+            flash("This user name does not exist")#return the flash message "This user name does not exist"
+            return redirect('/login')
 
 
 # signup handler
@@ -156,7 +151,8 @@ def signup():
 def logout():
     #delete username from session
     del session['username']
-    return redirect('/blog') #Just for me, flash message that "You have been logged out" ?
+    flash("You have been logged out")#Just for me, flash message that "You have been logged out" ?
+    return redirect('/blog') 
 
 @app.route('/blog', methods=['POST', 'GET'])
 def blog():
