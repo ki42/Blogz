@@ -39,17 +39,8 @@ class Blog(db.Model):
     
     def __repr__(self):
         return '<Blog %r>' % self.title
-
-#handle another parameter in new_post?
-
-# set a secret key here! 
+ 
 app.secret_key = "dsjfhirwbrguakdbufbuwe"
-
-def get_old_blogs():
-    return Blog.query.all()
-
-def get_users():
-    return User.query.all()
 
 @app.before_request
 def require_login():  
@@ -58,7 +49,7 @@ def require_login():
         return redirect('/login')
            
 @app.route('/')
-def index():         #need to fix database syntax to show authors on index - posibly working now, test in a minute
+def index():       
     user_table = User.query.all()
     return render_template("index.html", user_table = user_table)
 
@@ -77,10 +68,10 @@ def login():
                 session['username'] = user.username
                 return redirect("/newpost")
             else:
-                flash("Password is incorrect")    #return flash message "Password is incorrect"
+                flash("Password is incorrect")    
                 return redirect('/login')
         else:
-            flash("This user name does not exist")#return the flash message "This user name does not exist"
+            flash("This user name does not exist")
             return redirect('/login')
 
 
@@ -201,21 +192,6 @@ def blog():
             head_title="My blog", 
             blog = blog, owner = owner)  
 
-
-
-
-
-
-        if request.args.get('outofbounds'): #how to show single posts from a single author get request
-            user_id = request.args.get('user')
-            blog = Blog.query.get().all.sort_by("date desc")
-            
-             #this line should get all of the posts from that user_id
-            #is there away right here to sort by date as the blog object is created?
-            return render_template("singlepost.html",
-            head_title="My blog", 
-            blog = blog)
-
         else:    #I showed up for the first time- working
             userList = User.query.join(Blog, 
                 User.id==Blog.owner_id).add_columns(User.id, 
@@ -236,8 +212,6 @@ def newpost():
 # so, I need some way to add/commit the owner_id with these posts. 
     user_name = session['username']    #can I get the current username out? 
     return render_template('newpost.html', head_title="New Post", username = user_name)
-    
-  
 
 if __name__ == "__main__":
     app.run()

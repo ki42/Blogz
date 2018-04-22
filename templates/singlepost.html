@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>My Blog</h1>
+    <h1>{{owner.username}}'s post</h1>
     <table>   
         <tr>
             <td><h2><a href="/blog?id={{blog.id}}">{{blog.title}}</a></h2></td>
